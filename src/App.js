@@ -17,7 +17,7 @@ import AdminView from './pages/AdminView';
 import './App.css';
 
 const API_URL = 'https://back-end-pos.onrender.com/api';
-const WS_URL = 'ws://back-end-pos.onrender.com';
+const WS_URL = 'ws://localhost:5000';
 
 function App() {
     // --- STATE MANAGEMENT ---
