@@ -16,8 +16,8 @@ import AdminView from './pages/AdminView';
 // Import the main stylesheet
 import './App.css';
 
-const API_URL = 'http://192.168.18.11:5000/api';
-const WS_URL = 'ws://192.168.18.11:5000';
+const API_URL = 'https://back-end-pos.onrender.com/api';
+const WS_URL = 'ws://back-end-pos.onrender.com';
 
 function App() {
     // --- STATE MANAGEMENT ---
