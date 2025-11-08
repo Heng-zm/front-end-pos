@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { BsCart3, BsX, BsChevronUp } from 'react-icons/bs';
+import { BsCart3, BsChevronUp } from 'react-icons/bs';
 import OrderDetailsItem from './OrderDetailsItem';
 import LoadingSpinner from './LoadingSpinner';
 

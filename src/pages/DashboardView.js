@@ -4,7 +4,6 @@ import { BsSearch, BsChevronLeft, BsChevronRight, BsInboxes, BsClock } from 'rea
 // Import all necessary child components
 import OrderSidebar from '../components/OrderSidebar';
 import MenuItemCard from '../components/MenuItemCard';
-import LoadingSpinner from '../components/LoadingSpinner';
 
 // A sub-component for the cards in the top "Open Orders" slider
 const OrderBillCard = ({ order, onSettleBill }) => {
@@ -63,7 +62,7 @@ const DashboardView = ({
                 <div className="open-orders-section">
                     <div className="order-list-header">
                         <h3>Open Orders</h3>
-                        <a onClick={() => onNavigate('order-list')} className="see-all-link">See All</a>
+                        <button type="button" onClick={() => onNavigate('order-list')} className="see-all-link">See All</button>
                     </div>
                     
                     <div className="order-slider-container">
