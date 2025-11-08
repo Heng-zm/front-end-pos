@@ -17,7 +17,9 @@ import NotificationsView from './pages/NotificationsView';
 // Import the main stylesheet
 import './App.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://back-end-pos.onrender.com';
+const RAW_API_URL = process.env.REACT_APP_API_URL || 'https://back-end-pos.onrender.com';
+// Normalize to base origin without trailing slash or /api suffix to avoid double /api
+const API_URL = RAW_API_URL.replace(/\/$/, '').replace(/\/api$/, '');
 const WS_URL = process.env.REACT_APP_WS_URL || 'wss://back-end-pos.onrender.com';
 
 const ENDPOINTS = {
