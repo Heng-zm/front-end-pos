@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import { BsX } from 'react-icons/bs';
 
 // --- MOCK DATA FOR PAYMENT METHODS ---
 // In a real app, this would come from a configuration file or an API
@@ -33,6 +34,9 @@ const PaymentModal = ({ total, onConfirm, onCancel, isProcessing }) => {
         <div className="modal-overlay">
             <div className="modal-content">
                 <div className="modal-header">
+                    <button className="modal-close-btn" onClick={onCancel} title="Close">
+                        <BsX />
+                    </button>
                     <h3>Payment Method</h3>
                 </div>
                 
@@ -88,9 +92,12 @@ const PaymentModal = ({ total, onConfirm, onCancel, isProcessing }) => {
                         <p>Total to pay</p>
                         <span>USD {total.toFixed(2)}</span>
                     </div>
-                    <button className="process-btn checkout-btn" onClick={onConfirm} disabled={isProcessing}>
-                        {isProcessing ? <LoadingSpinner /> : 'Checkout'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <button className="process-btn secondary" onClick={onCancel} disabled={isProcessing}>Cancel</button>
+                        <button className="process-btn checkout-btn" onClick={onConfirm} disabled={isProcessing}>
+                            {isProcessing ? <LoadingSpinner /> : 'Checkout'}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

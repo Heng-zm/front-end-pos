@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { BsSearch, BsChevronLeft, BsChevronRight } from 'react-icons/bs';
+import { BsSearch, BsChevronLeft, BsChevronRight, BsInboxes, BsClock } from 'react-icons/bs';
 
 // Import all necessary child components
 import OrderSidebar from '../components/OrderSidebar';
@@ -75,7 +75,11 @@ const DashboardView = ({
                             {(liveOrders || []).length > 0 ? (
                                 (liveOrders || []).map(order => <OrderBillCard key={order.id} order={order} onSettleBill={onSettleBill} />)
                             ) : (
-                                <p className="no-orders-message">No open orders at the moment.</p>
+                                <div className="empty-state">
+                                    <div className="empty-state-icon"><BsClock /></div>
+                                    <h3>No Open Orders</h3>
+                                    <p>All orders have been completed or there are no active orders</p>
+                                </div>
                             )}
                         </div>
 
@@ -102,7 +106,15 @@ const DashboardView = ({
                     </div>
 
                     <div className="menu-grid">
-                        {filteredMenuItems.map(item => <MenuItemCard key={item.id} item={item} onAddToCart={onAddToCart} />)}
+                        {filteredMenuItems.length > 0 ? (
+                            filteredMenuItems.map(item => <MenuItemCard key={item.id} item={item} onAddToCart={onAddToCart} />)
+                        ) : (
+                            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
+                                <div className="empty-state-icon"><BsInboxes /></div>
+                                <h3>No Items Found</h3>
+                                <p>Try adjusting your search or category filter</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>

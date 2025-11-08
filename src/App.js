@@ -12,12 +12,13 @@ import BillsView from './pages/BillsView';
 import OrderListView from './pages/OrderListView';
 import ReportsView from './pages/ReportsView';
 import AdminView from './pages/AdminView';
+import NotificationsView from './pages/NotificationsView';
 
 // Import the main stylesheet
 import './App.css';
 
-const API_URL = 'https://back-end-pos.onrender.com/api';
-const WS_URL = 'http://localhost:5000/';
+const API_URL = process.env.REACT_APP_API_URL || 'https://back-end-pos.onrender.com/api';
+const WS_URL = process.env.REACT_APP_WS_URL || 'ws://localhost:5000/';
 
 function App() {
     // --- STATE MANAGEMENT ---
@@ -144,6 +145,26 @@ function App() {
 
     const handleDeleteMenuItem = async (id) => { setIsProcessing(true); try { await fetch(`${API_URL}/menu/${id}`, { method: 'DELETE' }); } catch(err) { toast.error(err.message); } finally { setIsProcessing(false); }};
     
+    // Notification handlers
+    const handleMarkAsRead = (id) => {
+        if (id === 'all') {
+            setNotifications(p => p.map(n => ({ ...n, read: true })));
+            toast.success('All notifications marked as read');
+        } else {
+            setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
+        }
+    };
+    
+    const handleDeleteNotification = (id) => {
+        setNotifications(p => p.filter(n => n.id !== id));
+        toast.success('Notification deleted');
+    };
+    
+    const handleClearAllNotifications = () => {
+        setNotifications([]);
+        toast.success('All notifications cleared');
+    };
+    
     const renderView = () => {
         if (isLoading) return <LoadingFullscreen />;
         switch (activeView) {
@@ -152,6 +173,7 @@ function App() {
             case 'bills': return <BillsView liveOrders={liveOrders} onSettleBill={handleSettleBill} />;
             case 'reports': return <ReportsView historyData={historyData} menuItems={menuItems} />;
             case 'admin': return <AdminView menuItems={menuItems} categories={categories} onSaveItem={handleSaveMenuItem} onDeleteItem={handleDeleteMenuItem} isProcessing={isProcessing} />;
+            case 'notifications': return <NotificationsView notifications={notifications} onMarkAsRead={handleMarkAsRead} onDeleteNotification={handleDeleteNotification} onClearAll={handleClearAllNotifications} />;
             default:
                 return (
                     <DashboardView

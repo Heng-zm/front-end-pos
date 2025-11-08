@@ -15,7 +15,7 @@ const OrderDetailModal = ({ order, onClose }) => {
 
     return (
         <div className="modal-overlay order-detail-modal"><div className="modal-content">
-            <div className="modal-header"><h3>Order Details</h3><button className="close-btn" onClick={onClose}><BsX /></button></div>
+            <div className="modal-header"><button className="modal-close-btn" onClick={onClose} title="Close"><BsX /></button><h3>Order Details</h3></div>
             <div className="order-detail-header">
                 <h4>{order.order_uid || order.transaction_uid}</h4>
                 <p>Customer: {order.customer_name}</p><p>Table: {order.table_number}</p>
