@@ -17,8 +17,16 @@ import NotificationsView from './pages/NotificationsView';
 // Import the main stylesheet
 import './App.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://back-end-pos.onrender.com/api';
-const WS_URL = process.env.REACT_APP_WS_URL || 'ws://localhost:5000/';
+const API_URL = process.env.REACT_APP_API_URL || 'https://back-end-pos.onrender.com';
+const WS_URL = process.env.REACT_APP_WS_URL || 'wss://back-end-pos.onrender.com';
+
+const ENDPOINTS = {
+    menu: '/api/menu',
+    categories: '/api/categories',
+    orders: '/api/live-orders',
+    history: '/api/history',
+    notifications: '/api/notifications'
+};
 
 function App() {
     // --- STATE MANAGEMENT ---
@@ -49,12 +57,29 @@ function App() {
     const fetchData = async (isInitial = false) => {
         try {
             const responses = await Promise.all([
-                fetch(`${API_URL}/menu`), fetch(`${API_URL}/history`),
-                fetch(`${API_URL}/live-orders`), fetch(`${API_URL}/categories`)
+                fetch(`${API_URL}${ENDPOINTS.menu}`),
+                fetch(`${API_URL}${ENDPOINTS.history}`),
+                fetch(`${API_URL}${ENDPOINTS.orders}`),
+                fetch(`${API_URL}${ENDPOINTS.categories}`),
+                fetch(`${API_URL}${ENDPOINTS.notifications}`)
             ]);
             if (responses.some(res => !res.ok)) throw new Error('A network response was not ok');
-            const [menu, history, orders, cats] = await Promise.all(responses.map(res => res.json()));
-            setMenuItems(menu.data); setHistoryData(history.data); setLiveOrders(orders.data); setCategories(cats.data);
+            const [menu, history, orders, cats, notifs] = await Promise.all(responses.map(res => res.json()));
+            setMenuItems(menu.data);
+            setHistoryData(history.data);
+            setLiveOrders(orders.data);
+            setCategories(cats.data);
+            // Normalize notifications to the shape expected by the UI
+            const normalizedNotifs = (notifs.data || []).map((n, idx) => ({
+                id: n.id ?? n._id ?? idx,
+                type: n.type ?? 'info',
+                title: n.title ?? n.message ?? 'Notification',
+                message: n.message ?? n.title ?? '',
+                timestamp: n.timestamp ?? n.date ?? n.created_at ?? n.createdAt ?? new Date().toISOString(),
+                read: Boolean(n.read ?? n.isRead ?? false),
+                icon: n.icon
+            }));
+            setNotifications(normalizedNotifs);
             if (isInitial) toast.success("System is online and connected!");
         } catch (error) { toast.error("Could not load data from the server."); } 
         finally { setIsLoading(false); }
@@ -104,7 +129,7 @@ function App() {
         if (!customerName || !selectedTable) { toast.error("Customer Name and Table are required."); return; }
         setIsProcessing(true);
         try {
-            await fetch(`${API_URL}/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerName, tableNumber: selectedTable, items: cart }) });
+            await fetch(`${API_URL}/api/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerName, tableNumber: selectedTable, items: cart }) });
             addNotification('new-order', `New order placed for Table ${selectedTable}.`);
             resetOrderState();
         } catch (err) { toast.error(err.message); } 
@@ -119,7 +144,7 @@ function App() {
         const orderToSettle = liveOrders.find(o => parseInt(o.table_number) === parseInt(selectedTable));
         if (!orderToSettle) { toast.error("Could not find open order."); setIsProcessing(false); return; }
         try {
-            const res = await fetch(`${API_URL}/transactions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cart, customerName, tableNumber: selectedTable, subtotal, tax, total, orderId: orderToSettle.id }) });
+            const res = await fetch(`${API_URL}/api/transactions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cart, customerName, tableNumber: selectedTable, subtotal, tax, total, orderId: orderToSettle.id }) });
             const result = await res.json();
             if (!res.ok) throw new Error(result.error);
             const completedOrder = { ...result.data, items: cart, ...paymentDetails };
@@ -129,11 +154,11 @@ function App() {
         finally { setIsProcessing(false); }
     };
     
-    const handleUpdateOrderStatus = async (orderId, status) => { await fetch(`${API_URL}/orders/${orderId}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); };
+    const handleUpdateOrderStatus = async (orderId, status) => { await fetch(`${API_URL}/api/orders/${orderId}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); };
     
     const handleSaveMenuItem = async (data, id) => {
         setIsProcessing(true);
-        const url = id ? `${API_URL}/menu/${id}` : `${API_URL}/menu`;
+        const url = id ? `${API_URL}/api/menu/${id}` : `${API_URL}/api/menu`;
         const method = id ? 'PUT' : 'POST';
         try {
             const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
@@ -143,7 +168,7 @@ function App() {
         finally { setIsProcessing(false); }
     };
 
-    const handleDeleteMenuItem = async (id) => { setIsProcessing(true); try { await fetch(`${API_URL}/menu/${id}`, { method: 'DELETE' }); } catch(err) { toast.error(err.message); } finally { setIsProcessing(false); }};
+    const handleDeleteMenuItem = async (id) => { setIsProcessing(true); try { await fetch(`${API_URL}/api/menu/${id}`, { method: 'DELETE' }); } catch(err) { toast.error(err.message); } finally { setIsProcessing(false); }};
     
     // Notification handlers
     const handleMarkAsRead = (id) => {
