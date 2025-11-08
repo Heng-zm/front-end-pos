@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Toaster, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 // Import all necessary components and page views
 import Header from './components/Header';
@@ -219,7 +219,6 @@ function App() {
 
     return (
         <>
-            <Toaster position="top-center" reverseOrder={false} toastOptions={{ className: 'toast-notification' }} />
             <div className={`pos-system ${theme}`}>
                 <div className="app-layout">
                     <Header activeView={activeView} onNavigate={setActiveView} theme={theme} onToggleTheme={toggleTheme} notifications={notifications} onNotificationsRead={handleNotificationsRead} />
